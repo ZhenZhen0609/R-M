@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#efebe4">
+  <title>R&amp;M</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Apply the saved theme before first paint, so the screen never flashes the wrong color. -->
+  <script>
+    try {
+      var t = JSON.parse(localStorage.getItem("rmlist.settings.v1") || "{}").theme;
+      if (t) document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <filter id="wobble"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="2"/></filter>
+  </svg>
+
+  <!-- Starry intro: continues the blue launch screen, then fades into the app (see main.js). -->
+  <div class="splash" id="splash" aria-hidden="true">
+    <svg class="sky" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" focusable="false">
+      <g class="s-gold">
+        <path class="twinkle" d="M70 120 Q70 134 84 134 Q70 134 70 148 Q70 134 56 134 Q70 134 70 120Z"/>
+        <path class="twinkle" d="M318 90 Q318 108 336 108 Q318 108 318 126 Q318 108 300 108 Q318 108 318 90Z"/>
+        <path class="twinkle" d="M300 300 Q300 310 310 310 Q300 310 300 320 Q300 310 290 310 Q300 310 300 300Z"/>
+        <path class="twinkle" d="M52 560 Q52 572 64 572 Q52 572 52 584 Q52 572 40 572 Q52 572 52 560Z"/>
+        <path class="twinkle" d="M330 640 Q330 655 345 655 Q330 655 330 670 Q330 655 315 655 Q330 655 330 640Z"/>
+        <path class="twinkle" d="M140 760 Q140 768 148 768 Q140 768 140 776 Q140 768 132 768 Q140 768 140 760Z"/>
+      </g>
+      <g class="s-dot">
+        <circle cx="190" cy="70" r="2.4"/><circle cx="130" cy="210" r="1.8"/><circle cx="250" cy="190" r="2"/>
+        <circle cx="40" cy="330" r="2"/><circle cx="360" cy="420" r="2.2"/><circle cx="90" cy="680" r="1.8"/>
+        <circle cx="240" cy="720" r="2.2"/><circle cx="360" cy="780" r="1.6"/><circle cx="30" cy="790" r="2"/>
+        <circle cx="210" cy="600" r="1.6"/><circle cx="270" cy="40" r="1.6"/><circle cx="20" cy="210" r="1.6"/>
+      </g>
+    </svg>
+    <div class="splash-center">
+      <svg class="splash-book" viewBox="28 34 52 46" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+        <path d="M54 44.2 C47.8 39.6 40 38.7 31.6 40.3 L32.3 69.7 C40.4 68.3 47.8 69.3 54 73.4 C60.3 69.4 67.6 68.4 75.9 69.8 L76.6 40.1 C68.3 38.5 60.2 39.4 54 44.2Z" fill="#22325c" stroke="none"/>
+        <path d="M54 44.2 C47.8 39.6 40 38.7 31.6 40.3 L32.3 69.7 C40.4 68.3 47.8 69.3 54 73.4" stroke-width="1.6"/>
+        <path d="M54 44.2 C60.2 39.4 68.3 38.5 76.6 40.1 L75.9 69.8 C67.6 68.4 60.3 69.4 54 73.4" stroke-width="1.6"/>
+        <path d="M54 44.6 C54.2 54 53.9 63.5 54.1 72.9" stroke-width="1.4"/>
+        <path d="M32.3 69.7 L31.8 72.8 C40.6 71.3 47.6 72.5 54 76.3 C60.5 72.4 67.7 71.4 76.4 72.9 L75.9 69.8" stroke-width="1.6"/>
+        <path d="M37.4 48.3 C41.4 47.6 45.3 48.1 49 49.4 M37.6 54.1 C41.6 53.5 45.2 53.9 48.9 55.2 M37.8 59.9 C40.8 59.4 43.5 59.7 46.2 60.5 M59.2 55.1 C62.8 53.8 66.5 53.4 70.5 54 M59.4 60.8 C62.9 59.6 66.3 59.3 70.2 59.8" stroke-width="1.1"/>
+        <path d="M66.2 39.6 L66.4 48.6 L68.4 46.6 L70.4 48.7 L70.2 39.4Z" fill="#f5d77e" stroke="#f5d77e" stroke-width="0.8"/>
+      </svg>
+      <span class="splash-name">Read Me.</span>
+    </div>
+  </div>
+
+  <header class="top">
+    <span class="brand">Read Me.</span>
+    <button type="button" class="profile-btn" id="profile-btn" aria-label="Profile and settings" aria-expanded="false" aria-controls="view-profile">
+      <svg class="draw" viewBox="0 0 30 30" aria-hidden="true" focusable="false"><circle class="fill" cx="15" cy="15" r="8"/></svg>
+    </button>
+  </header>
+
+  <main id="main">
+    <!-- ===== Today ===== -->
+    <section id="view-today" class="view" aria-labelledby="today-hello">
+      <div class="hero" data-art="sunrise" id="today-art"></div>
+      <h1 class="hello" id="today-hello"></h1>
+      <p class="date-line" id="today-date"></p>
+      <div id="today-checkin" class="block"></div>
+
+      <div id="today-suggestion" class="block" hidden>
+        <h2 class="label">something small, if you feel like it</h2>
+        <p class="big-line" id="today-suggestion-text"></p>
+        <button type="button" class="pill" id="today-suggestion-another"><span data-icon="shuffle"></span>another idea</button>
+      </div>
+
+      <div class="block">
+        <h2 class="label">save a thought for <span class="session-day-name">tuesday</span></h2>
+        <form class="thought-form line-form">
+          <input type="text" name="thought" maxlength="500" placeholder="something to bring up…" aria-label="Thought to bring up in your next session" autocomplete="off">
+          <button type="submit" class="pill solid">save</button>
+        </form>
+        <p class="small" id="today-session-hint"></p>
+      </div>
+
+      <div id="today-session" class="block" hidden>
+        <h2 class="label">from your last session</h2>
+        <p class="big-line" id="today-session-notes"></p>
+        <p class="small" id="today-session-date"></p>
+      </div>
+
+      <p class="sign" id="today-sign"></p>
+    </section>
+
+    <!-- ===== Calendar ===== -->
+    <section id="view-calendar" class="view" aria-labelledby="month-label" hidden>
+      <div class="month-bar">
+        <button type="button" class="icon-btn" id="prev-month" aria-label="Previous month"><span data-icon="back"></span></button>
+        <h1 id="month-label" aria-live="polite"></h1>
+        <button type="button" class="icon-btn" id="next-month" aria-label="Next month"><span data-icon="next"></span></button>
+      </div>
+      <div class="cal-weekdays" aria-hidden="true"><span>s</span><span>m</span><span>t</span><span>w</span><span>t</span><span>f</span><span>s</span></div>
+      <div id="cal-grid" class="cal-grid"></div>
+      <p class="small center" id="month-summary"></p>
+      <p class="small center">tap a day to check in or see what you logged.</p>
+    </section>
+
+    <!-- ===== Therapist ===== -->
+    <section id="view-therapist" class="view" aria-labelledby="ther-heading" hidden>
+      <div class="hero" data-art="talk"></div>
+      <h1 class="hello" id="ther-heading"></h1>
+      <p class="date-line" id="ther-sub"></p>
+
+      <div class="block">
+        <h2 class="label">your week</h2>
+        <ol id="week-strip" class="week-strip"></ol>
+        <div id="week-details"></div>
+        <button type="button" class="pill" id="copy-summary"><span data-icon="copy"></span>copy summary</button>
+      </div>
+
+      <div class="block">
+        <h2 class="label">to bring up</h2>
+        <form class="thought-form line-form">
+          <input type="text" name="thought" maxlength="500" placeholder="add a thought…" aria-label="Thought to bring up in your next session" autocomplete="off">
+          <button type="submit" class="pill solid">add</button>
+        </form>
+        <ul id="thought-list" class="lines"></ul>
+        <details id="discussed" hidden>
+          <summary>talked about (<span id="discussed-count"></span>)</summary>
+          <ul id="discussed-list" class="lines"></ul>
+          <button type="button" class="link" id="clear-discussed">clear these</button>
+        </details>
+      </div>
+
+      <div class="block">
+        <h2 class="label">after your session</h2>
+        <p class="small">one or two things to remember. they'll show on today.</p>
+        <form id="session-form" class="stack">
+          <div class="field"><span>session date</span><input type="date" name="date" data-themed data-clearable="false"></div>
+          <label class="field">notes <textarea name="notes" rows="4" maxlength="4000" placeholder="what do you want to remember?"></textarea></label>
+          <button type="submit" class="pill solid">save notes</button>
+        </form>
+        <details id="past-sessions" hidden>
+          <summary>past sessions</summary>
+          <ul id="past-sessions-list" class="lines notes"></ul>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===== Comfort ===== -->
+    <section id="view-comfort" class="view" aria-labelledby="comfort-heading" hidden>
+      <div class="hero" data-art="cup"></div>
+      <h1 class="hello" id="comfort-heading">your comfort shelf.</h1>
+      <p class="date-line">things that help, kept in one place.</p>
+
+      <div class="block center">
+        <p class="big-line" id="pick-result" aria-live="polite">not sure what you need?</p>
+        <button type="button" class="pill solid" id="pick-btn"><span data-icon="shuffle"></span>pick something for me</button>
+      </div>
+
+      <div class="block">
+        <h2 class="label">small comforting things</h2>
+        <form id="activity-form" class="line-form">
+          <input type="text" name="activity" maxlength="200" placeholder="e.g. sit by the window" aria-label="New comforting activity" autocomplete="off">
+          <button type="submit" class="pill solid">add</button>
+        </form>
+        <ul id="activity-list" class="lines"></ul>
+      </div>
+
+      <div class="block">
+        <h2 class="label">comfort books &amp; movies</h2>
+        <ul id="comfort-items" class="entries"></ul>
+      </div>
+    </section>
+
+    <!-- ===== Library ===== -->
+    <section id="view-library" class="view" aria-labelledby="library-heading" hidden>
+      <div class="hero" data-art="books"></div>
+      <h1 class="hello" id="library-heading">your library.</h1>
+      <p class="date-line" id="library-count"></p>
+
+      <div class="filters" role="group" aria-label="Show">
+        <div class="seg" role="radiogroup" aria-label="Type">
+          <button type="button" role="radio" data-filter-type="all" aria-checked="true">all</button>
+          <button type="button" role="radio" data-filter-type="book" aria-checked="false">books</button>
+          <button type="button" role="radio" data-filter-type="movie" aria-checked="false">movies</button>
+        </div>
+        <label class="select-wrap"><span class="visually-hidden">Status</span>
+          <select id="library-status" data-themed="compact" data-title="show">
+            <option value="all">everything</option>
+            <option value="planned">want to</option>
+            <option value="done">finished</option>
+            <option value="comfort">comfort shelf</option>
+          </select>
+        </label>
+      </div>
+      <ul id="library-list" class="entries"></ul>
+      <button type="button" class="fab" id="add-btn" aria-label="Add a book or movie"><span data-icon="plus"></span></button>
+    </section>
+
+    <!-- ===== Profile ===== -->
+    <section id="view-profile" class="view" aria-labelledby="profile-heading" hidden>
+      <div class="profile-head">
+        <button type="button" class="icon-btn" id="profile-close" aria-label="Back"><span data-icon="back"></span></button>
+      </div>
+      <div class="hero" data-art="plant"></div>
+      <h1 class="hello" id="profile-heading"></h1>
+      <ul class="stats" id="stats"></ul>
+
+      <div class="block">
+        <h2 class="label">your name</h2>
+        <form id="name-form" class="line-form">
+          <input type="text" name="name" maxlength="40" placeholder="what should i call you?" aria-label="Your name" autocomplete="off">
+          <button type="submit" class="pill solid">save</button>
+        </form>
+      </div>
+
+      <div class="block">
+        <h2 class="label">colors</h2>
+        <div class="themes" id="theme-picker" role="radiogroup" aria-label="Color theme"></div>
+      </div>
+
+      <div class="block">
+        <h2 class="label">settings</h2>
+        <label class="row-setting">show mood faces on calendar
+          <input type="checkbox" id="set-mood-faces" class="switch">
+        </label>
+        <label class="row-setting">therapy day
+          <select id="set-session-day" data-themed="compact" data-title="therapy day">
+            <option value="0">sunday</option><option value="1">monday</option><option value="2">tuesday</option>
+            <option value="3">wednesday</option><option value="4">thursday</option><option value="5">friday</option><option value="6">saturday</option>
+          </select>
+        </label>
+        <form id="support-form" class="stack">
+          <label class="field">support line <input type="tel" name="line" maxlength="30" autocomplete="off"></label>
+          <button type="submit" class="pill">save</button>
+        </form>
+      </div>
+
+      <div class="block">
+        <h2 class="label">updates</h2>
+        <p class="big-line">version <span id="app-version"></span></p>
+        <p class="small" id="update-status" aria-live="polite"></p>
+        <div class="progress" id="update-progress" hidden><span></span></div>
+        <div class="btn-row">
+          <button type="button" class="pill solid" id="check-update">check for updates</button>
+          <button type="button" class="pill" id="install-update" hidden>download &amp; install</button>
+        </div>
+        <details>
+          <summary>update server</summary>
+          <p class="small">the address shown on your computer when you run the update server.</p>
+          <form id="server-form" class="line-form">
+            <input type="url" name="server" maxlength="200" placeholder="http://192.168.1.5:8642" aria-label="Update server address" autocomplete="off" inputmode="url">
+            <button type="submit" class="pill">save</button>
+          </form>
+        </details>
+        <details>
+          <summary>what's new</summary>
+          <div id="release-notes"></div>
+        </details>
+      </div>
+
+      <div class="block">
+        <h2 class="label">backup &amp; restore</h2>
+        <p class="small">everything stays on this device. use a backup to move to a new phone.</p>
+        <div class="btn-row">
+          <button type="button" class="pill" id="export-btn">export backup</button>
+          <input type="file" id="import-input" class="visually-hidden" accept=".json,application/json">
+          <label for="import-input" class="pill">import backup</label>
+        </div>
+      </div>
+    </section>
+
+    <footer class="support" id="support-footer">
+      <p>feeling too heavy? reach out to your therapist early,<br>or call the support line:
+        <a id="support-link" href="tel:13520073751"><span data-icon="phone"></span><span id="support-number">13520073751</span></a></p>
+    </footer>
+  </main>
+
+  <nav class="nav" aria-label="Main">
+    <button type="button" class="tab" data-view="today" aria-current="page"><span data-icon="today"></span>today</button>
+    <button type="button" class="tab" data-view="calendar"><span data-icon="calendar"></span>calendar</button>
+    <button type="button" class="tab" data-view="therapist"><span data-icon="therapist"></span>therapy</button>
+    <button type="button" class="tab" data-view="comfort"><span data-icon="comfort"></span>comfort</button>
+    <button type="button" class="tab" data-view="library"><span data-icon="library"></span>library</button>
+  </nav>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- Day sheet (from calendar) -->
+  <dialog id="checkin-dialog" class="sheet" aria-labelledby="checkin-title">
+    <div class="sheet-inner">
+      <div class="sheet-head">
+        <h2 id="checkin-title"></h2>
+        <button type="button" class="icon-btn" id="checkin-done" aria-label="Close"><span data-icon="close"></span></button>
+      </div>
+      <div id="checkin-body"></div>
+      <div id="checkin-items"></div>
+      <button type="button" class="pill" id="checkin-add-item"><span data-icon="plus"></span>add a book or movie on this day</button>
+    </div>
+  </dialog>
+
+  <!-- Add / edit book or movie -->
+  <dialog id="item-dialog" class="sheet" aria-labelledby="dialog-title">
+    <form id="item-form" class="sheet-inner" novalidate>
+      <div class="sheet-head">
+        <h2 id="dialog-title">add to library</h2>
+        <button type="button" class="icon-btn" id="cancel-btn" aria-label="Close"><span data-icon="close"></span></button>
+      </div>
+
+      <div class="seg wide" role="radiogroup" aria-label="Type">
+        <label><input type="radio" name="type" value="book" checked><span><i data-icon="book"></i>book</span></label>
+        <label><input type="radio" name="type" value="movie"><span><i data-icon="movie"></i>movie</span></label>
+      </div>
+
+      <label class="field">title <input type="text" name="title" required maxlength="200" autocomplete="off"></label>
+      <label class="field"><span id="creator-label">author</span> <input type="text" name="creator" maxlength="200" autocomplete="off"></label>
+
+      <div class="seg wide" role="radiogroup" aria-label="Status">
+        <label><input type="radio" name="status" value="planned" checked><span id="status-planned">want to read</span></label>
+        <label><input type="radio" name="status" value="done"><span id="status-done">read</span></label>
+      </div>
+
+      <div class="field"><span>date</span><input type="date" name="date" data-themed></div>
+
+      <fieldset class="stars-input">
+        <legend>rating</legend>
+        <div class="stars-row"></div>
+      </fieldset>
+
+      <label class="row-setting">on my comfort shelf <input type="checkbox" name="comfort" class="switch"></label>
+      <label class="field">notes <textarea name="notes" rows="3" maxlength="2000"></textarea></label>
+      <p id="form-error" class="error" role="alert"></p>
+
+      <div class="btn-row">
+        <button type="submit" class="pill solid">save</button>
+        <button type="button" class="pill danger" id="delete-btn"><span data-icon="trash"></span>delete</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="js/version.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/media.js"></script>
+  <script src="js/wellbeing.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

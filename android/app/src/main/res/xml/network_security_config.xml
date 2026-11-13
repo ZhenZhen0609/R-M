@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The home Wi-Fi update server is plain HTTP on a private IP address, which Android blocks by default.
+     Android's config can't whitelist IP ranges, so cleartext is allowed app-wide; the app itself only
+     ever contacts the update server address set in Profile. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

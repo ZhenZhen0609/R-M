@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">R&amp;M</string>
+    <string name="title_activity_main">R&amp;M</string>
+    <string name="package_name">com.rmlist.app</string>
+    <string name="custom_url_scheme">com.rmlist.app</string>
+</resources>
